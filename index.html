@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الماس آگاهی | Diamond of Awareness</title>
+    <style>
+        :root { 
+            --primary: #9b59b6; 
+            --primary-hover: #8e44ad; 
+            --gold: #d4af37; 
+            --bg-dark: #121212; 
+            --bg-card: #1e1e1e; 
+            --text-light: #f4f4f4; 
+            --text-muted: #bbb; 
+        }
+        
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-dark); 
+            color: var(--text-light); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .wrapper { 
+            width: 95%; 
+            max-width: 1000px; 
+            height: 90vh; 
+            max-height: 750px; 
+            background: var(--bg-card); 
+            border-radius: 16px; 
+            display: flex; 
+            overflow: hidden; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+        }
+
+        .image-side { 
+            flex: 1; 
+            /* Ensure your image file is exactly named amethyst.jpeg */
+            background: url('amethyst.jpeg') center/cover no-repeat; 
+            position: relative; 
+        }
+
+        .content-side { 
+            flex: 1.2; 
+            padding: 30px 40px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            box-sizing: border-box; 
+            overflow-y: auto; 
+        }
+
+        .content-side::-webkit-scrollbar { width: 6px; }
+        .content-side::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        .titles { text-align: center; margin-bottom: 20px; }
+        .titles h1 { color: var(--gold); font-size: 24px; margin: 0 0 5px 0; }
+        .titles h2 { color: var(--text-muted); font-size: 15px; margin: 0; font-weight: normal; }
+
+        .desc-box { 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        
+        .fa-text { direction: rtl; text-align: right; margin-bottom: 12px; }
+        .en-text { direction: ltr; text-align: left; color: #ccc; font-size: 13px; }
+        .highlight { font-weight: bold; color: var(--gold); }
+
+        .session-info { 
+            background: #2a2a2a; 
+            border-radius: 8px; 
+            padding: 12px 15px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            border-left: 3px solid var(--primary); 
+            border-right: 3px solid var(--primary); 
+            font-size: 14px; 
+            direction: ltr; 
+        }
+
+        .form-group { margin-bottom: 12px; direction: ltr; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--gold); font-size: 13px; }
+        .form-group input { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid #444; 
+            border-radius: 6px; 
+            background: #2a2a2a; 
+            color: #fff; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            transition: border 0.3s; 
+        }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
+
+        .submit-btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            margin-top: 10px; 
+        }
+        .submit-btn:hover { background: var(--primary-hover); }
+
+        @media (max-width: 768px) {
+            body, html { height: auto; align-items: flex-start; padding: 15px 0; }
+            .wrapper { flex-direction: column; height: auto; max-height: none; width: 92%; margin: 0 auto; }
+            .image-side { height: 220px; flex: none; }
+            .content-side { padding: 20px; }
+            .titles h1 { font-size: 20px; }
+            .titles h2 { font-size: 13px; }
+            .desc-box { font-size: 13px; padding: 12px; }
+            .en-text { font-size: 12px; }
+            .session-info { font-size: 13px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="image-side"></div>
+        <div class="content-side">
+            
+            <div class="titles">
+                <h1>💎 الماس آگاهی | از خرد بزرگان</h1>
+                <h2>Diamond of Awareness | Wisdom of the Masters</h2>
+            </div>
+
+            <div class="desc-box">
+                <div class="fa-text">
+                    حقیقت‌هایی به‌یادگارمانده از بزرگان که نگاه ما را به زندگی دگرگون می‌کنند؛ آگاهی‌هایی که ذهن را روشن، دل را آرام و ما را به آرامشی عمیق‌تر نزدیک می‌کنند.<br>
+                    <span class="highlight">هر الماس، یک حقیقت؛ هر حقیقت، یک بیداری.</span>
+                </div>
+                <hr style="border: 0; height: 1px; background: #444; margin: 12px 0;">
+                <div class="en-text">
+                    Timeless truths passed down by great minds that transform the way we see life. Wisdom that illuminates the mind, soothes the heart, and guides us toward a deeper sense of inner peace.<br>
+                    <span class="highlight">Every diamond, a truth; every truth, an awakening.</span>
+                </div>
+            </div>
+
+            <div class="session-info">
+                <strong>🗓 Dates:</strong> Nov 11, 18, 25 & Dec 2 &nbsp;|&nbsp; <strong>⏰ Time:</strong> 9:00 PM UAE
+            </div>
+
+            <form id="registrationForm" onsubmit="redirectToStripe(event)">
+                <div class="form-group">
+                    <label for="name">Full Name (نام کامل)</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address (ایمیل)</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="whatsapp">WhatsApp Number (شماره واتس‌اپ)</label>
+                    <input type="tel" id="whatsapp" placeholder="+971 50 123 4567" required>
+                </div>
+                <!-- 
+                     Be sure to replace YOUR_STRIPE_PAYMENT_LINK_ID_HERE 
+                     in the script below before saving! 
+                -->
+                <button type="submit" class="submit-btn">Proceed to Payment</button>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        function redirectToStripe(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('whatsapp').value;
+
+            // PASTE YOUR ACTUAL STRIPE PAYMENT LINK HERE (e.g., https://buy.stripe.com/abc123xyz)
+            const stripeLink = "https://buy.stripe.com/YOUR_STRIPE_PAYMENT_LINK_ID_HERE";
+            
+            const finalUrl = `${stripeLink}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(phone)}`;
+            
+            window.location.href = finalUrl;
+        }
+    </script>
+</body>
+</html>

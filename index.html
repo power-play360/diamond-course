@@ -182,7 +182,7 @@
         </div>
     </div>
 
-    <script>
+    <!-- <script>
         function redirectToStripe(event) {
             event.preventDefault();
 
@@ -197,6 +197,30 @@
             
             const finalUrl = `${stripeLink}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(combinedData)}`;
             
+            window.location.href = finalUrl;
+        }
+    </script> -->
+    <script>
+        function toBase64Url(str) {
+            const bytes = new TextEncoder().encode(str);   // handles Persian text
+            let bin = '';
+            bytes.forEach(b => bin += String.fromCharCode(b));
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+    
+        function redirectToStripe(event) {
+            event.preventDefault();
+    
+            const name  = document.getElementById('name').value.trim().slice(0, 50);
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('whatsapp').value.replace(/[^\d+]/g, ''); // e.g. +971501234567
+    
+            // Stripe only allows A-Z a-z 0-9 - _ (max 200 chars), so encode it
+            const ref = toBase64Url(name + '|' + phone);
+    
+            const stripeLink = "https://buy.stripe.com/test_4gM00k1n51GQ6JUfJ19k401";
+            const finalUrl = `${stripeLink}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${ref}`;
+    
             window.location.href = finalUrl;
         }
     </script>

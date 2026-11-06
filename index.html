@@ -190,12 +190,14 @@
             const email = document.getElementById('email').value;
             const phone = document.getElementById('whatsapp').value;
 
+            const phoneDigits = document.getElementById('whatsapp').value.replace(/\D/g, '');
+
             const combinedData = name + "---" + phone;
 
             // PASTE YOUR ACTUAL STRIPE PAYMENT LINK HERE (e.g., https://buy.stripe.com/abc123xyz)
             const stripeLink = "https://buy.stripe.com/test_4gM00k1n51GQ6JUfJ19k401";
             
-            const finalUrl = `${stripeLink}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(combinedData)}`;
+            const finalUrl = `${stripeLink}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${phoneDigits}`;
             
             window.location.href = finalUrl;
         }

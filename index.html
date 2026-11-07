@@ -301,7 +301,16 @@
             const raw = phoneInput.value.trim();
             if (!raw) return showMsg(phoneInput, 'Please enter your WhatsApp number.', 'لطفاً شماره واتس‌اپ خود را وارد کنید.');
             if (iti && window.intlTelInput.utils) {
-                if (iti.isValidNumber()) return showMsg(phoneInput);
+                // if (iti.isValidNumber()) return showMsg(phoneInput);
+                const U = window.intlTelInput.utils;
+                const type = iti.getNumberType();
+                const isMobile = type === U.numberType.MOBILE || type === U.numberType.FIXED_LINE_OR_MOBILE;
+                if (isMobile) return showMsg(phoneInput);
+
+                // A complete, real number that is not a mobile (e.g. a landline)
+                if (type !== -1 && type !== undefined && type !== U.numberType.UNKNOWN) return showMsg(phoneInput,
+                    'Please enter a mobile number that has WhatsApp.',
+                    'لطفاً یک شماره موبایل دارای واتس‌اپ وارد کنید.');
                 const country = iti.getSelectedCountryData();
                 const E = window.intlTelInput.utils.validationError;
                 const err = iti.getValidationError();

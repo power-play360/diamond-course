@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>الماس آگاهی | Diamond of Awareness</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/css/intlTelInput.css">
     <style>
         :root { 
             --primary: #9b59b6; 
@@ -103,6 +104,26 @@
             transition: border 0.3s; 
         }
         .form-group input:focus { outline: none; border-color: var(--primary); }
+         /* Validation states */
+        .form-group input.invalid { border-color: #e57373; }
+        .form-group input.valid   { border-color: #66bb6a; }
+        .field-msg { display: none; margin-top: 5px; font-size: 12px; line-height: 1.5; color: #e57373; }
+        .field-msg.show { display: block; }
+        .field-msg .fa { direction: rtl; display: block; text-align: right; }
+        .field-msg.hint { color: var(--gold); }
+        .field-msg.hint a { color: var(--gold); font-weight: bold; cursor: pointer; text-decoration: underline; }
+
+        /* Country selector: full width + dark theme */
+        .iti { width: 100%; display: block; }
+        .iti__selected-country { color: #fff; }
+        .iti__selected-dial-code { color: #ddd; }
+        .iti__dropdown-content { background: #2a2a2a; color: #f4f4f4; border: 1px solid #444; border-radius: 6px; }
+        .iti__search-input { background: #1e1e1e !important; color: #fff !important; border: 0 !important; border-bottom: 1px solid #444 !important; }
+        .iti__country.iti__highlight { background: #3a3a3a; }
+        .iti__dial-code { color: #aaa; }
+        .iti__arrow { border-top-color: #bbb; }
+        .iti__arrow--up { border-bottom-color: #bbb; }
+        .submit-btn:disabled { opacity: 0.6; cursor: wait; }
 
         .submit-btn { 
             width: 100%; 
@@ -159,30 +180,191 @@
                 <strong>🗓 Dates:</strong> Nov 11, 18, 25 & Dec 2 &nbsp;|&nbsp; <strong>⏰ Time:</strong> 9:00 PM UAE
             </div>
 
-            <form id="registrationForm" onsubmit="redirectToStripe(event)">
+            <form id="registrationForm" novalidate>
                 <div class="form-group">
                     <label for="name">Full Name (نام کامل)</label>
-                    <input type="text" id="name" required>
+                    <input type="text" id="name" autocomplete="name">
+                    <div class="field-msg" id="name-msg"></div>
                 </div>
                 <div class="form-group">
                     <label for="email">Email Address (ایمیل)</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" autocomplete="email" placeholder="name@example.com" spellcheck="false" autocapitalize="off">
+                    <div class="field-msg" id="email-msg"></div>
                 </div>
                 <div class="form-group">
                     <label for="whatsapp">WhatsApp Number (شماره واتس‌اپ)</label>
-                    <input type="tel" id="whatsapp" placeholder="+971 50 123 4567" required>
+                    <input type="tel" id="whatsapp" autocomplete="tel">
+                    <div class="field-msg" id="whatsapp-msg"></div>
                 </div>
-                <!-- 
-                     Be sure to replace YOUR_STRIPE_PAYMENT_LINK_ID_HERE 
-                     in the script below before saving! 
-                -->
-                <button type="submit" class="submit-btn">Proceed to Payment</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Proceed to Payment</button>
             </form>
 
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/js/intlTelInput.min.js"></script>
     <script>
+        const STRIPE_LINK = "https://buy.stripe.com/test_4gM00k1n51GQ6JUfJ19k401";
+
+        const form       = document.getElementById('registrationForm');
+        const nameInput  = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('whatsapp');
+        const submitBtn  = document.getElementById('submitBtn');
+
+        // Country selector
+        let iti = null;
+        if (window.intlTelInput) {
+            iti = window.intlTelInput(phoneInput, {
+                initialCountry: "ae",
+                preferredCountries: ["ae", "ir", "om", "qa", "sa", "kw", "bh", "gb", "us", "ca", "de", "tr"],
+                countrySearch: true,
+                separateDialCode: true,
+                strictMode: true,
+                nationalMode: true,
+                autoPlaceholder: "aggressive",
+                loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/js/utils.js"),
+            });
+        } else {
+            phoneInput.placeholder = "+971 50 123 4567";
+        }
+
+        // Persian/Arabic digits -> English digits
+        const DIGIT_MAP = {'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
+                           '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+        phoneInput.addEventListener('input', () => {
+            const fixed = phoneInput.value.replace(/[۰-۹٠-٩]/g, d => DIGIT_MAP[d]);
+            if (fixed !== phoneInput.value) phoneInput.value = fixed;
+        });
+
+        function showMsg(input, en, fa, isHint) {
+            const box = document.getElementById(input.id + '-msg');
+            box.classList.toggle('hint', !!isHint);
+            if (en) {
+                box.innerHTML = en + (fa ? '<span class="fa">' + fa + '</span>' : '');
+                box.classList.add('show');
+                if (!isHint) { input.classList.add('invalid'); input.classList.remove('valid'); }
+                return !!isHint;
+            }
+            box.classList.remove('show');
+            box.innerHTML = '';
+            input.classList.remove('invalid');
+            input.classList.add('valid');
+            return true;
+        }
+
+        function validateName() {
+            const v = nameInput.value.trim().replace(/\s+/g, ' ');
+            if (!v) return showMsg(nameInput, 'Please enter your full name.', 'لطفاً نام کامل خود را وارد کنید.');
+            if (/[0-9۰-۹٠-٩@#$%^&*_=+<>{}\[\]\\/|~`!?:;"]/.test(v)) return showMsg(nameInput,
+                'Name should contain letters only.', 'نام فقط باید شامل حروف باشد.');
+            if (v.replace(/[\s.'\-]/g, '').length < 2) return showMsg(nameInput,
+                'Name looks too short.', 'نام وارد‌شده خیلی کوتاه است.');
+            if (v.length > 80) return showMsg(nameInput,
+                'Name is too long (max 80 characters).', 'نام خیلی طولانی است (حداکثر ۸۰ کاراکتر).');
+            return showMsg(nameInput);
+        }
+
+        const EMAIL_RE = /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/;
+        const DOMAIN_TYPOS = {
+            'gmial.com':'gmail.com','gmai.com':'gmail.com','gmal.com':'gmail.com','gamil.com':'gmail.com',
+            'gmail.co':'gmail.com','gmail.cm':'gmail.com','gmail.con':'gmail.com','gnail.com':'gmail.com','gmaill.com':'gmail.com',
+            'yaho.com':'yahoo.com','yahooo.com':'yahoo.com','yahoo.co':'yahoo.com','yahoo.con':'yahoo.com',
+            'hotmal.com':'hotmail.com','hotmial.com':'hotmail.com','hotmail.co':'hotmail.com','hotmail.con':'hotmail.com','hotmai.com':'hotmail.com',
+            'outlok.com':'outlook.com','outloo.com':'outlook.com','outlook.co':'outlook.com','outlook.con':'outlook.com',
+            'icloud.co':'icloud.com','iclod.com':'icloud.com','icoud.com':'icloud.com','icloud.con':'icloud.com'
+        };
+        let emailTypoAccepted = false;
+
+        function validateEmail() {
+            emailInput.value = emailInput.value.trim();
+            const v = emailInput.value;
+            if (!v) return showMsg(emailInput, 'Please enter your email address.', 'لطفاً ایمیل خود را وارد کنید.');
+            if (/\s/.test(v) || (v.match(/@/g) || []).length !== 1 || v.includes('..') || !EMAIL_RE.test(v))
+                return showMsg(emailInput, 'Please enter a valid email (e.g. name@example.com).',
+                                           'لطفاً یک ایمیل معتبر وارد کنید (مثلاً name@example.com).');
+            const [local, domain] = v.split('@');
+            const fix = DOMAIN_TYPOS[domain.toLowerCase()];
+            if (fix && !emailTypoAccepted) {
+                const suggestion = local + '@' + fix;
+                showMsg(emailInput,
+                    'Did you mean <a id="email-fix">' + suggestion + '</a>? &nbsp;<a id="email-keep">No, keep mine</a>',
+                    'منظورتان ' + suggestion + ' بود؟', true);
+                document.getElementById('email-fix').onclick = () => { emailInput.value = suggestion; validateEmail(); };
+                document.getElementById('email-keep').onclick = () => { emailTypoAccepted = true; validateEmail(); };
+                return false;
+            }
+            return showMsg(emailInput);
+        }
+        emailInput.addEventListener('input', () => { emailTypoAccepted = false; });
+
+        function validatePhone() {
+            const raw = phoneInput.value.trim();
+            if (!raw) return showMsg(phoneInput, 'Please enter your WhatsApp number.', 'لطفاً شماره واتس‌اپ خود را وارد کنید.');
+            if (iti && window.intlTelInput.utils) {
+                if (iti.isValidNumber()) return showMsg(phoneInput);
+                const country = iti.getSelectedCountryData();
+                const E = window.intlTelInput.utils.validationError;
+                const err = iti.getValidationError();
+                const where = country && country.name ? ' for ' + country.name : '';
+                if (err === E.TOO_SHORT) return showMsg(phoneInput,
+                    'This number is too short' + where + '.', 'شماره وارد‌شده کوتاه است. لطفاً بررسی کنید.');
+                if (err === E.TOO_LONG) return showMsg(phoneInput,
+                    'This number is too long' + where + '.', 'شماره وارد‌شده طولانی است. لطفاً بررسی کنید.');
+                if (err === E.INVALID_COUNTRY_CODE) return showMsg(phoneInput,
+                    'Please choose your country from the list.', 'لطفاً کشور خود را از لیست انتخاب کنید.');
+                return showMsg(phoneInput,
+                    'This doesn\'t look like a valid number' + where + '. Check the country and number.',
+                    'شماره معتبر نیست. لطفاً کشور و شماره را بررسی کنید.');
+            }
+            const digits = raw.replace(/\D/g, '');
+            if (!/^(\+|00)/.test(raw)) return showMsg(phoneInput,
+                'Please include your country code, starting with + (e.g. +971...).', 'لطفاً کد کشور را با + وارد کنید.');
+            if (digits.length < 9 || digits.length > 15) return showMsg(phoneInput,
+                'This number doesn\'t look complete.', 'شماره وارد‌شده کامل به نظر نمی‌رسد.');
+            return showMsg(phoneInput);
+        }
+
+        function getPhoneDigits() {
+            if (iti && window.intlTelInput.utils) return iti.getNumber().replace(/\D/g, '');
+            let d = phoneInput.value.replace(/\D/g, '');
+            if (d.startsWith('00')) d = d.slice(2);
+            return d;
+        }
+
+        [[nameInput, validateName], [emailInput, validateEmail], [phoneInput, validatePhone]]
+            .forEach(([input, fn]) => {
+                input.addEventListener('blur', fn);
+                input.addEventListener('input', () => {
+                    if (input.classList.contains('invalid') || input.classList.contains('valid')) fn();
+                });
+            });
+        phoneInput.addEventListener('countrychange', () => { if (phoneInput.value) validatePhone(); });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (iti && iti.promise) { try { await iti.promise; } catch (e) {} }
+
+            const results = [validateName(), validateEmail(), validatePhone()];
+            if (!results.every(Boolean)) {
+                (form.querySelector('input.invalid') || emailInput).focus();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Redirecting to payment…';
+
+            const email = emailInput.value.trim().toLowerCase();
+            const phoneDigits = getPhoneDigits();
+            window.location.href = `${STRIPE_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${phoneDigits}`;
+        });
+
+        window.addEventListener('pageshow', () => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Proceed to Payment';
+        });
+    </script>
+
+    <!-- <script>
         function redirectToStripe(event) {
             event.preventDefault();
 
@@ -201,7 +383,7 @@
             
             window.location.href = finalUrl;
         }
-    </script>
+    </script> -->
     <!-- <script>
         function toBase64Url(str) {
             const bytes = new TextEncoder().encode(str);   // handles Persian text
